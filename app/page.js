@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "./Home.module.css";
@@ -9,16 +11,22 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  function Home() {
   const [prediction, setPrediction] = useState(null);
   const [error, setError] = useState(null);
-
+  const [toastMessage, setToastMessage] = useState("");
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const promptValue = e.target.prompt.value.trim();
+
+    if (!promptValue) {
+      toast.error("Enter the prompt");
+      return;
+    }
     const response = await fetch("/api/predictions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: e.target.prompt.value,
+        prompt: promptValue,
       }),
     });
     let prediction = await response.json();
@@ -39,7 +47,6 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
         setError(prediction.detail);
         return;
       }
-      console.log({prediction})
       setPrediction(prediction);
     }
   };
@@ -47,19 +54,22 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   return (
     <div className={styles.container}>
       <Head>
-        <title>Replicate + Next.js</title>
+        <title>TextArtify</title>
       </Head>
+      <h1 className={styles.underlined}>
+  Welcome to TextArtify
+</h1>
 
-      <p>
+      <h3 style={{textAlign:'center',color:'#82ed5c'}}>
         Dream something with{" "}
         <a href="https://replicate.com/stability-ai/stable-diffusion">SDXL</a>:
-      </p>
+      </h3>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <input type="text" name="prompt" placeholder="Enter a prompt to display an image" />
         <button type="submit">Go!</button>
       </form>
-
+      <ToastContainer />
       {error && <div>{error}</div>}
 
       {prediction && (
