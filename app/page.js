@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
+// import Loader from 'react-loader-spinner';
+import { RotatingLines } from "react-loader-spinner";
 import "react-toastify/dist/ReactToastify.css";
 import Head from "next/head";
 import Image from "next/image";
@@ -8,10 +10,9 @@ import styles from "./Home.module.css";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
- function Home() {
+function Home() {
   const [prediction, setPrediction] = useState(null);
-  const [error, setError] = useState(null);
-  const [toastMessage, setToastMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     const promptValue = e.target.prompt.value.trim();
@@ -20,6 +21,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       toast.error("Enter the prompt");
       return;
     }
+    setLoading(true);
     const response = await fetch("/api/predictions", {
       method: "POST",
       headers: {
@@ -30,8 +32,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       }),
     });
     let prediction = await response.json();
-    if (response.status !== 201) {
-      setError(prediction.detail);
+    if (!response.ok) {
+      toast.error(prediction.detail);
+      setLoading(false);
       return;
     }
     setPrediction(prediction);
@@ -43,12 +46,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       await sleep(1000);
       const response = await fetch("/api/predictions/" + prediction.id);
       prediction = await response.json();
-      if (response.status !== 200) {
-        setError(prediction.detail);
+      if (!response.ok) {
+        toast.error(prediction.detail);
+        setLoading(false);
         return;
       }
       setPrediction(prediction);
     }
+    setLoading(false);
   };
 
   return (
@@ -56,35 +61,49 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       <Head>
         <title>TextArtify</title>
       </Head>
-      <h1 className={styles.underlined}>
-  Welcome to TextArtify
-</h1>
+      <h1 className={styles.underlined}>Welcome to TextArtify</h1>
 
-      <h3 style={{textAlign:'center',color:'#82ed5c'}}>
+      <h3 style={{ textAlign: "center", color: "#82ed5c" }}>
         Dream something with{" "}
         <a href="https://replicate.com/stability-ai/stable-diffusion">SDXL</a>:
       </h3>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <input type="text" name="prompt" placeholder="Enter a prompt to display an image" />
+        <input
+          type="text"
+          name="prompt"
+          placeholder="Enter a prompt to display an image"
+        />
         <button type="submit">Go!</button>
       </form>
       <ToastContainer />
-      {error && <div>{error}</div>}
 
-      {prediction && (
+      {loading && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+
+        <RotatingLines
+          visible={true}
+          height={96}
+          width={96}
+          color="grey"
+          strokeWidth={5}
+          animationDuration={0.75}
+          ariaLabel="rotating-lines-loading"
+        />
+        </div>
+      )}
+      {!loading && prediction && (
         <div>
-            {prediction.output && (
-              <div className={styles.imageWrapper}>
+          {prediction.output && (
+            <div className={styles.imageWrapper}>
               <Image
                 fill
                 src={prediction.output[prediction.output.length - 1]}
                 alt="output"
-                sizes='100vw'
+                sizes="100vw"
               />
-              </div>
-            )}
-            <p>status: {prediction.status}</p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -26,18 +26,30 @@
   border-color: #cb1829 transparent transparent transparent;
   border-radius: 80%;
 }
+.underlined::before {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 9rem;
+  height: 20px;
+  width: 60%;
+  border: solid 2px blue;
+  border-color: blue transparent transparent transparent;
+  border-radius: 80%;
+}
 
 .form input {
   width: 100%;
   padding: 1rem;
-  /* border: 1px solid #000; */
+  border: 1px solid #ccc;
   border-radius: 0.5rem;
-  box-shadow: 2px 2px 4px #82ed5c;
+  /* box-shadow: 2px 2px 4px #82ed5c; */
   font-size: 1.3rem;
+  outline: none;
   margin-right: 1rem;
 }
 .form input:focus{
-  border: 1px solid red;
+  border: 2px solid #82ed5c;
 }
 .form button {
   padding: 1rem;
@@ -55,7 +67,7 @@
 .imageWrapper {
   width: 100%;
   aspect-ratio: 1 / 1;
-  position: relative
+  position: relative;
 }
 .bg{
  background-image: 

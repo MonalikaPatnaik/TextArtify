@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Textartify",
   description: "Application that converts text to image using in-built Replicate Model",
+  icons:{
+    icon:'./favicon.ico'
+  }
 };
 
 export default function RootLayout({ children }) {
